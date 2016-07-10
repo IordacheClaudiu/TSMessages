@@ -17,6 +17,10 @@
 
 static NSMutableDictionary *_notificationDesign;
 
+static NSString *const kTextAlignmentCenter = @"center";
+static NSString *const kTextAlignmentRight = @"right";
+static NSString *const kTextAlignmentLeft = @"left";
+
 @interface TSMessage (TSMessageView)
 - (void)fadeOutNotification:(TSMessageView *)currentView; // private method of TSMessage, but called by TSMessageView in -[fadeMeOut]
 @end
@@ -290,6 +294,9 @@ canBeDismissedByUser:(BOOL)dismissingEnabled
         } else {
             [self.titleLabel setFont:[UIFont boldSystemFontOfSize:fontSize]];
         }
+        NSString *alignment = [current valueForKey:@"titleTextAlignment"];
+        [self.titleLabel setTextAlignment:[self textAlignmentFromString:alignment]];
+        
         [self.titleLabel setShadowColor:[UIColor colorWithHexString:[current valueForKey:@"shadowColor"]]];
         [self.titleLabel setShadowOffset:CGSizeMake([[current valueForKey:@"shadowOffsetX"] floatValue],
                                                     [[current valueForKey:@"shadowOffsetY"] floatValue])];
@@ -318,6 +325,9 @@ canBeDismissedByUser:(BOOL)dismissingEnabled
             } else {
                 [self.contentLabel setFont:[UIFont systemFontOfSize:fontSize]];
             }
+            NSString *alignment = [current valueForKey:@"contentTextAlignment"];
+            [self.contentLabel setTextAlignment:[self textAlignmentFromString:alignment]];
+
             [self.contentLabel setShadowColor:self.titleLabel.shadowColor];
             [self.contentLabel setShadowOffset:self.titleLabel.shadowOffset];
             self.contentLabel.lineBreakMode = self.titleLabel.lineBreakMode;
@@ -450,20 +460,26 @@ canBeDismissedByUser:(BOOL)dismissingEnabled
     CGFloat currentHeight;
     CGFloat screenWidth = self.viewController.view.bounds.size.width;
     CGFloat padding = [self padding];
-
+    CGFloat labelWidth = screenWidth - padding - self.textSpaceLeft - self.textSpaceRight;
+    
     self.titleLabel.frame = CGRectMake(self.textSpaceLeft,
                                        padding,
-                                       screenWidth - padding - self.textSpaceLeft - self.textSpaceRight,
+                                       labelWidth,
                                        0.0);
-    [self.titleLabel sizeToFit];
-
+    CGSize size =  [self.titleLabel sizeThatFits:self.titleLabel.frame.size];
+    self.titleLabel.frame = CGRectMake(self.textSpaceLeft, padding, labelWidth, size.height);
+    
     if ([self.subtitle length])
     {
         self.contentLabel.frame = CGRectMake(self.textSpaceLeft,
                                              self.titleLabel.frame.origin.y + self.titleLabel.frame.size.height + 5.0,
-                                             screenWidth - padding - self.textSpaceLeft - self.textSpaceRight,
+                                             labelWidth,
                                              0.0);
-        [self.contentLabel sizeToFit];
+        CGSize size =  [self.contentLabel sizeThatFits:self.contentLabel.frame.size];
+        self.contentLabel.frame = CGRectMake(self.textSpaceLeft,
+                                             self.titleLabel.frame.origin.y + self.titleLabel.frame.size.height + 5.0,
+                                             labelWidth,
+                                             size.height);
 
         currentHeight = self.contentLabel.frame.origin.y + self.contentLabel.frame.size.height;
     }
@@ -590,7 +606,16 @@ canBeDismissedByUser:(BOOL)dismissingEnabled
     {
         if (self.callback)
         {
-            self.callback();
+            CGPoint touchLocation = [tapGesture locationInView:self];
+            if (CGRectContainsPoint(self.titleLabel.frame, touchLocation)) {
+                self.callback(TSMessageNotificationTapAreaTitle);
+            } else if(CGRectContainsPoint(self.contentLabel.frame, touchLocation)) {
+                self.callback(TSMessageNotificationTapAreaSubtitle);
+            } else if(CGRectContainsPoint(self.iconImageView.frame, touchLocation)) {
+                self.callback(TSMessageNotificationTapAreaCustomImage);
+            } else {
+                self.callback(TSMessageNotificationTapAreaContentView);
+            }
         }
     }
 }
@@ -607,6 +632,15 @@ canBeDismissedByUser:(BOOL)dismissingEnabled
     NSBundle *bundle = [NSBundle bundleForClass:[self class]];
     NSString *imagePath = [bundle pathForResource:name ofType:nil];
     return [[UIImage alloc] initWithContentsOfFile:imagePath];
+}
+
+- (NSTextAlignment)textAlignmentFromString:(NSString *)string {
+    if ([string isEqualToString:kTextAlignmentCenter]) {
+        return NSTextAlignmentCenter;
+    } else if ([string isEqualToString:kTextAlignmentRight]) {
+        return NSTextAlignmentRight;
+    }
+    return NSTextAlignmentLeft;
 }
 
 @end

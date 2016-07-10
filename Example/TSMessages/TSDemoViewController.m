@@ -144,7 +144,9 @@
                                           image:nil
                                            type:TSMessageNotificationTypeSuccess
                                        duration:TSMessageNotificationDurationAutomatic
-                                       callback:nil
+                                       callback:^(TSMessageNotificationTapArea area) {
+                                           NSLog(@"Callback %d", area);
+                                       }
                                     buttonTitle:nil
                                  buttonCallback:nil
                                      atPosition:TSMessageNotificationPositionBottom
@@ -164,7 +166,7 @@
     [TSMessage addCustomDesignFromFileWithName:@"AlternativeDesign.json"];
     [TSMessage showNotificationWithTitle:NSLocalizedString(@"Updated to custom design file", nil)
                                     subtitle:NSLocalizedString(@"From now on, all the titles of success messages are larger", nil)
-                                    type:TSMessageNotificationTypeSuccess];
+                                    type:TSMessageNotificationTypeMessage];
 }
 
 
