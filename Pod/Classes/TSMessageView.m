@@ -459,21 +459,21 @@ canBeDismissedByUser:(BOOL)dismissingEnabled
     if ([self.subtitle length])
     {
         self.contentLabel.frame = CGRectMake(self.textSpaceLeft,
-                                             self.titleLabel.frame.origin.y + self.titleLabel.frame.size.height + 5.0,
+                                             CGRectGetMaxY(self.titleLabel.frame) + 5.0,
                                              labelWidth,
                                              0.0);
         CGSize size =  [self.contentLabel sizeThatFits:self.contentLabel.frame.size];
         self.contentLabel.frame = CGRectMake(self.textSpaceLeft,
-                                             self.titleLabel.frame.origin.y + self.titleLabel.frame.size.height + 5.0,
+                                            CGRectGetMaxY(self.titleLabel.frame) + 5.0,
                                              labelWidth,
                                              size.height);
 
-        currentHeight = self.contentLabel.frame.origin.y + self.contentLabel.frame.size.height;
+        currentHeight = CGRectGetMaxY(self.contentLabel.frame);
     }
     else
     {
         // only the title was set
-        currentHeight = self.titleLabel.frame.origin.y + self.titleLabel.frame.size.height;
+        currentHeight = CGRectGetMaxY(self.titleLabel.frame);
     }
 
     currentHeight += padding;
@@ -519,10 +519,7 @@ canBeDismissedByUser:(BOOL)dismissingEnabled
     }
 
 
-    CGRect backgroundFrame = CGRectMake(self.backgroundImageView.frame.origin.x,
-                                        self.backgroundImageView.frame.origin.y,
-                                        screenWidth,
-                                        currentHeight);
+    CGRect backgroundFrame = CGRectMake(0.f, 0.f, screenWidth, currentHeight);
 
     // increase frame of background view because of the spring animation
     if ([TSMessage iOS7StyleEnabled])
@@ -550,7 +547,7 @@ canBeDismissedByUser:(BOOL)dismissingEnabled
     }
 
     self.backgroundImageView.frame = backgroundFrame;
-
+    
     return currentHeight;
 }
 
