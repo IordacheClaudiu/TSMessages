@@ -18,8 +18,9 @@
         "titleFontSize": 25
     },
     "message": {
-        "backgroundImageName": "NotificationBackgroundMessage.png",
+        "backgroundImageName": "",
         "borderColor": "#727C83",
+        "backgroundColor" : "#BF000000",
         "borderHeight": 1,
         "buttonBackgroundImageName": "NotificationButtonBackground.png",
         "buttonTitleTextColor": "#727C83",
@@ -34,7 +35,7 @@
         "shadowOffsetX": 0,
         "shadowOffsetY": 1,
         "textColor": "#727C83",
-        "titleFontSize": 14
+        "titleFontSize": 14,
         "titleTextAlignment" : "center"
     },
     "warning": {
